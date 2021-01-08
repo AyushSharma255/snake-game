@@ -28,7 +28,9 @@ class Cube:
         pygame.draw.rect(display, self.color, (self.pos[0], self.pos[1], 10, 10))
 
 
-snake = [Cube((250, 250), snake_color), ]
+snake = [
+    Cube((250, 250), snake_color),
+]
 snake_x_vel = 10
 snake_y_vel = 0
 
@@ -41,7 +43,9 @@ def reset():
     global score, snake, snake_x_vel, snake_y_vel, food
 
     score = 1  # Reset score to 1
-    snake = [Cube((250, 250), snake_color), ]  # Reset snake to head only
+    snake = [
+        Cube((250, 250), snake_color),  # Reset snake to head only
+    ]
     snake_x_vel = 10  # Reset both velocities
     snake_y_vel = 0  # Reset both velocities
 
@@ -52,8 +56,12 @@ def draw():
     display.fill(background_color)
 
     # Border
-    pygame.draw.rect(display, border_color, (45, 45, 410, 410))  # Outer rectangle, actual border
-    pygame.draw.rect(display, background_color, (50, 50, 400, 400))  # Inner rectangle, covers inside
+    pygame.draw.rect(
+        display, border_color, (45, 45, 410, 410)
+    )  # Outer rectangle, actual border
+    pygame.draw.rect(
+        display, background_color, (50, 50, 400, 400)
+    )  # Inner rectangle, covers inside
 
     # Score Text
     text = font.render(f"Score: {score}", True, border_color)
