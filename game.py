@@ -28,27 +28,49 @@ class Cube:
         pygame.draw.rect(display, self.color, (self.pos[0], self.pos[1], 10, 10))
 
 
-snake = [
-    Cube((250, 250), snake_color),
-]
-snake_x_vel = 10
-snake_y_vel = 0
+class Snake:
+    def __init__(self, x_vel, y_vel):
+        self.body = [Cube((250, 250), snake_color), ]
+        self.x_vel = x_vel
+        self.y_vel = y_vel
 
+    def draw(self):
+        for cube in self.body:
+            cube.draw()
+
+    def eat(self):
+        global score
+        score += 1
+        self.body.append(Cube(self.body[0].pos, snake_color))
+
+        x_on_grid = randint(6, 34)
+        y_on_grid = randint(6, 34)
+        food.pos = (x_on_grid * 10, y_on_grid * 10)
+
+        for cube in self.body:  # Food should not be on snake
+            if cube.pos == food.pos:
+                food.pos = (x_on_grid * 10, y_on_grid * 10)
+
+    def move(self):
+        # Move body except the head
+        for cube in (self.body[1:])[::-1]:
+            index = self.body.index(cube) - 1
+            cube.pos = self.body[index].pos
+
+        self.body[0].move(self.x_vel, self.y_vel)  # Move head
+
+
+snake = Snake(x_vel=10, y_vel=0)
 food = Cube((300, 250), food_color)
 
 score = 1
 
 
 def reset():
-    global score, snake, snake_x_vel, snake_y_vel, food
+    global score, snake, food
 
     score = 1  # Reset score to 1
-    snake = [
-        Cube((250, 250), snake_color),  # Reset snake to head only
-    ]
-    snake_x_vel = 10  # Reset both velocities
-    snake_y_vel = 0  # Reset both velocities
-
+    snake = Snake(x_vel=10, y_vel=0)  # Reset snake to head only
     food = Cube((300, 250), food_color)  # Reset food
 
 
@@ -68,25 +90,10 @@ def draw():
     display.blit(text, (50, 460))
 
     # Snake
-    for cube in snake:
-        cube.draw()
+    snake.draw()
 
     # Food
     food.draw()
-
-
-def eat():
-    global score
-    score += 1
-    snake.append(Cube(snake[0].pos, snake_color))
-
-    x_on_grid = randint(6, 34)
-    y_on_grid = randint(6, 34)
-    food.pos = (x_on_grid * 10, y_on_grid * 10)
-
-    for cube in snake[1:]:  # Food should not be on snake
-        if cube.pos == food.pos:
-            food.pos = (x_on_grid * 10, y_on_grid * 10)
 
 
 while running:
@@ -100,57 +107,52 @@ while running:
         # Move mechanic
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
-                if snake_y_vel == 10:
-                    if len(snake) == 1:
-                        snake_y_vel = -10
-                        snake_x_vel = 0
+                if snake.y_vel == 10:
+                    if len(snake.body) == 1:
+                        snake.y_vel = -10
+                        snake.x_vel = 0
                 else:
-                    snake_y_vel = -10
-                    snake_x_vel = 0
+                    snake.y_vel = -10
+                    snake.x_vel = 0
             elif event.key == pygame.K_s:
-                if snake_y_vel == -10:
-                    if len(snake) == 1:
-                        snake_y_vel = 10
-                        snake_x_vel = 0
+                if snake.y_vel == -10:
+                    if len(snake.body) == 1:
+                        snake.y_vel = 10
+                        snake.x_vel = 0
                 else:
-                    snake_y_vel = 10
-                    snake_x_vel = 0
+                    snake.y_vel = 10
+                    snake.x_vel = 0
             elif event.key == pygame.K_a:
-                if snake_x_vel == 10:
-                    if len(snake) == 1:
-                        snake_x_vel = -10
-                        snake_y_vel = 0
+                if snake.x_vel == 10:
+                    if len(snake.body) == 1:
+                        snake.x_vel = -10
+                        snake.y_vel = 0
                 else:
-                    snake_x_vel = -10
-                    snake_y_vel = 0
+                    snake.x_vel = -10
+                    snake.y_vel = 0
             elif event.key == pygame.K_d:
-                if snake_x_vel == -10:
-                    if len(snake) == 1:
-                        snake_x_vel = 10
-                        snake_y_vel = 0
+                if snake.x_vel == -10:
+                    if len(snake.body) == 1:
+                        snake.x_vel = 10
+                        snake.y_vel = 0
                 else:
-                    snake_x_vel = 10
-                    snake_y_vel = 0
+                    snake.x_vel = 10
+                    snake.y_vel = 0
 
     # Eat the food if collided with food
-    if snake[0].pos == food.pos:
-        eat()
+    if snake.body[0].pos == food.pos:
+        snake.eat()
 
     # If you eat/collide your own body, you die
-    for cube in snake[1:]:
-        if (snake[0].pos[0] + snake_x_vel, snake[0].pos[1] + snake_y_vel) == cube.pos:
+    for cube in snake.body[1:]:
+        if (snake.body[0].pos[0] + snake.x_vel, snake.body[0].pos[1] + snake.y_vel) == cube.pos:
             reset()
 
     # If you hit the border, you die
-    if not (40 < snake[0].pos[0] < 450 and 40 < snake[0].pos[1] < 450):
+    if not (40 < snake.body[0].pos[0] < 450 and 40 < snake.body[0].pos[1] < 450):
         reset()
 
-    # Move body except the head
-    for cube in (snake[1:])[::-1]:
-        index = snake.index(cube) - 1
-        cube.pos = snake[index].pos
-
-    snake[0].move(snake_x_vel, snake_y_vel)  # Move head
+    snake.move()
 
 
 pygame.quit()  # Close window
